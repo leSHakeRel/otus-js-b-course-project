@@ -10,7 +10,7 @@
     "lint:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "prepare": "husky"
