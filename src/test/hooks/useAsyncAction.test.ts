@@ -103,7 +103,7 @@ describe('useAsyncAction', () => {
     const action = vi.fn().mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useAsyncAction(action));
 
-    let returnValue: undefined;
+    let returnValue: unknown;
     await act(async () => {
       returnValue = await result.current.execute();
     });

@@ -50,11 +50,11 @@
     "lint-staged": "^17.0.5"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "*.{ts,tsx,cjs,js}": [
       "eslint --fix --max-warnings 0",
       "prettier --write"
     ],
-    "*.{json,css,md}": [
+    "*.{json,css,md,yml}": [
       "prettier --write"
     ]
   }

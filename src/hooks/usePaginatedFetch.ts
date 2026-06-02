@@ -45,6 +45,8 @@ export function usePaginatedFetch<T>(
     setRefreshKey((k) => k + 1);
   }, []);
 
+  const depsKey = JSON.stringify(deps);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -72,8 +74,7 @@ export function usePaginatedFetch<T>(
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, refreshKey, ...deps]);
+  }, [page, refreshKey, depsKey]);
 
   return {
     data,

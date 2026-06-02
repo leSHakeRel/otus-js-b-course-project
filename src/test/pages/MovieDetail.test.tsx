@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -86,6 +85,8 @@ describe('MovieDetail', () => {
       imdbRating: null,
       kinopoiskRating: null,
       kinopoiskNameRu: null,
+      kinopoiskDescription: null,
+      kinopoiskShortDescription: null,
       isLoading: true,
     });
 
@@ -133,6 +134,8 @@ describe('MovieDetail', () => {
       imdbRating: 8.8,
       kinopoiskRating: 8.7,
       kinopoiskNameRu: 'Начало',
+      kinopoiskDescription: 'Описание',
+      kinopoiskShortDescription: 'Короткое описание',
       isLoading: false,
     });
 
@@ -189,6 +192,8 @@ describe('MovieDetail', () => {
       imdbRating: null,
       kinopoiskRating: null,
       kinopoiskNameRu: null,
+      kinopoiskDescription: null,
+      kinopoiskShortDescription: null,
       isLoading: false,
     });
 
@@ -233,6 +238,8 @@ describe('MovieDetail', () => {
       imdbRating: null,
       kinopoiskRating: null,
       kinopoiskNameRu: null,
+      kinopoiskDescription: null,
+      kinopoiskShortDescription: null,
       isLoading: false,
     });
 
