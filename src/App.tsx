@@ -88,7 +88,7 @@ const AppRoutes: React.FC = () => {
 
 function App(): React.ReactElement {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
