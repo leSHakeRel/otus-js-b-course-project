@@ -20,10 +20,10 @@
     "noPropertyAccessFromIndexSignature": true,
     "exactOptionalPropertyTypes": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["src/test"],
+  "include": ["./src"],
+  "exclude": ["./src/test"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
