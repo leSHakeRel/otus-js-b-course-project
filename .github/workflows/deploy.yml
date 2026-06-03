@@ -20,7 +20,7 @@ jobs:
           VITE_OMDB_API_KEY: ${{ secrets.VITE_OMDB_API_KEY }}
           VITE_KINOPOISK_API_KEY: ${{ secrets.VITE_KINOPOISK_API_KEY }}
       - name: Copy static assets
-        run: cp ./apple-touch-icon.png ./favicon-*.png ./favicon.ico ./site.webmanifest ./dist/
+        run: cp ./apple-touch-icon.png ./favicon-*.png ./android-chrome-*.png ./favicon.ico ./site.webmanifest ./dist/
       - name: Fix SPA routing
         run: cp ./dist/index.html ./dist/404.html
       - uses: peaceiris/actions-gh-pages@v4
