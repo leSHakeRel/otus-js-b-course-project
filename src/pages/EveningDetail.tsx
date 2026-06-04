@@ -109,7 +109,7 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
 
   return (
     <div className="bg-dark-750 flex items-center justify-between rounded-lg p-4">
-      <div className="flex min-w-0 items-center space-x-4">
+      <div className="flex w-full min-w-0 items-center space-x-4">
         {movie.posterPath ? (
           <img
             src={`https://image.tmdb.org/t/p/w92${movie.posterPath}`}
@@ -121,14 +121,14 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
             <span className="text-2xl">🎬</span>
           </div>
         )}
-        <div>
+        <div className="w-full">
           <div className="group relative">
             <h3 className="max-w-[200px] cursor-help truncate font-medium text-dark-100 sm:max-w-[300px]">
               {movie.title}
             </h3>
             {kinopoiskDescription && !ratingsLoading && (
-              <div className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden group-hover:block">
-                <div className="max-w-xs rounded-lg border border-dark-600 bg-dark-700 p-3 text-sm text-dark-100 shadow-xl">
+              <div className="pointer-events-none absolute left-0 z-20 mb-2 hidden group-hover:block">
+                <div className="min-w-md max-w-md rounded-lg border border-dark-600 bg-dark-700 p-3 text-sm text-dark-100 shadow-xl">
                   <p className="leading-relaxed">{kinopoiskDescription}</p>
                 </div>
               </div>
