@@ -37,7 +37,7 @@ export const EveningsList: React.FC = () => {
   } = usePaginatedFetch<Evening>(fetchEvenings, [filterTab]);
 
   const tabs: { key: FilterTab; label: string }[] = [
-    { key: 'all', label: 'Все' },
+    // { key: 'all', label: 'Все' },
     { key: 'public', label: 'Публичные' },
     ...(isAuthenticated ? [{ key: 'my' as const, label: 'Мои' }] : []),
   ];
