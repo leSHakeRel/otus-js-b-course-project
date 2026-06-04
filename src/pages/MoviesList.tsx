@@ -73,7 +73,7 @@ export const MoviesList: React.FC = () => {
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {movies.map((movie) => (
-              <Card key={movie.tmdbId} className="overflow-hidden">
+              <Card key={movie.tmdbId}>
                 <div className="flex h-full flex-col">
                   <Link to={`/movies/${movie.tmdbId}`}>
                     {movie.posterPath ? (
@@ -88,7 +88,7 @@ export const MoviesList: React.FC = () => {
                       </div>
                     )}
                   </Link>
-                  <div className="flex flex-grow flex-col p-4">
+                  <div className="flex flex-grow flex-col px-4 pt-4">
                     <Link to={`/movies/${movie.tmdbId}`}>
                       <h3 className="mb-2 text-lg font-semibold text-dark-100 transition-colors hover:text-primary-500">
                         {movie.title}
@@ -130,7 +130,7 @@ export const MoviesList: React.FC = () => {
                           Добавить в киновечер
                         </Button>
                         {showEveningPicker === movie.tmdbId && (
-                          <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-dark-600 bg-dark-700 shadow-xl">
+                          <div className="absolute z-20 mt-2 max-h-48 w-full overflow-y-auto rounded-lg border border-dark-600 bg-dark-700 shadow-xl">
                             {userEvenings.length === 0 ? (
                               <div className="p-3 text-center text-sm text-dark-400">
                                 Нет киновечеров.{' '}
