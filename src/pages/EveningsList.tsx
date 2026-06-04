@@ -20,17 +20,9 @@ export const EveningsList: React.FC = () => {
 
   const fetchEvenings = useCallback(
     (page: number) => {
-      const apiFilter =
-        filterTab === 'my'
-          ? 'my'
-          : filterTab === 'public'
-            ? 'public'
-            : undefined;
-      return eveningsApi.getAll(
-        page,
-        10,
-        apiFilter ? { filter: apiFilter } : undefined
-      );
+      const apiFilter: 'my' | 'public' | 'all' =
+        filterTab === 'my' ? 'my' : filterTab === 'public' ? 'public' : 'all';
+      return eveningsApi.getAll(page, 10, { filter: apiFilter });
     },
     [filterTab]
   );

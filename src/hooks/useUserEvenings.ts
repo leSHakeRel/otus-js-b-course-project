@@ -31,7 +31,7 @@ export function useUserEvenings(): UseUserEveningsResult {
 
     setIsLoading(true);
     eveningsApi
-      .getAll(1, 50)
+      .getAll(1, 50, { filter: 'my' })
       .then((res) => {
         setEvenings(res.data);
       })
