@@ -71,7 +71,7 @@ describe('useUserEvenings', () => {
 
     expect(result.current.evenings).toHaveLength(1);
     expect(result.current.evenings[0]?.id).toBe('evening-1');
-    expect(mockGetAll).toHaveBeenCalledWith(1, 50);
+    expect(mockGetAll).toHaveBeenCalledWith(1, 50, { filter: 'my' });
   });
 
   it('returns empty array when not authenticated', () => {
