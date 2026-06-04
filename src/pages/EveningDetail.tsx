@@ -11,6 +11,7 @@ import { Card } from '@/components/common/Card';
 import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MovieRatingsProps {
@@ -128,7 +129,7 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
             </h3>
             {kinopoiskDescription && !ratingsLoading && (
               <div className="pointer-events-none absolute left-0 z-20 mb-2 hidden group-hover:block">
-                <div className="min-w-md max-w-md rounded-lg border border-dark-600 bg-dark-700 p-3 text-sm text-dark-100 shadow-xl">
+                <div className="min-w-xs max-w-full rounded-lg border border-dark-600 bg-dark-700 p-3 text-sm text-dark-100 shadow-xl">
                   <p className="leading-relaxed">{kinopoiskDescription}</p>
                 </div>
               </div>
@@ -245,6 +246,10 @@ export const EveningDetail: React.FC = () => {
   );
   const [newComment, setNewComment] = useState('');
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+
   const [sortField, setSortField] = useState<SortField>('default');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -256,6 +261,30 @@ export const EveningDetail: React.FC = () => {
       }
     },
     { onErrorMessage: 'Не удалось удалить киновечер' }
+  );
+
+  const {
+    execute: handleUpdate,
+    isLoading: isUpdating,
+    error: updateError,
+  } = useAsyncAction(
+    async () => {
+      if (!id) return;
+      await eveningsApi.update(id, {
+        title: editTitle.trim(),
+        description: editDescription.trim(),
+      });
+      setEvening((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          title: editTitle.trim(),
+          description: editDescription.trim(),
+        };
+      });
+      setIsEditing(false);
+    },
+    { onErrorMessage: 'Не удалось обновить киновечер' }
   );
 
   const { execute: handleAddComment, isLoading: isSendingComment } =
@@ -333,6 +362,24 @@ export const EveningDetail: React.FC = () => {
     } finally {
       setRemovingMovieTmdbId(null);
     }
+  };
+
+  const startEditing = (): void => {
+    if (!evening) return;
+    setEditTitle(evening.title);
+    setEditDescription(evening.description);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = (): void => {
+    setIsEditing(false);
+    setEditTitle('');
+    setEditDescription('');
+  };
+
+  const saveEditing = async (): Promise<void> => {
+    if (!editTitle.trim() || editTitle.trim().length < 3) return;
+    await handleUpdate();
   };
 
   const handleDeleteClick = (): void => {
@@ -414,27 +461,89 @@ export const EveningDetail: React.FC = () => {
 
       <Card>
         <div className="mb-4 flex items-start justify-between">
-          <h1 className="text-3xl font-bold text-dark-100">{evening.title}</h1>
-          <div className="flex items-center space-x-3">
-            {isAuthenticated && user?.id === evening.createdBy.id && (
-              <Button
-                variant="danger"
-                size="sm"
-                isLoading={isDeleting}
-                onClick={handleDeleteClick}
-              >
-                Удалить
-              </Button>
-            )}
-            {evening.isPrivate && (
-              <span className="rounded bg-dark-700 px-3 py-1 text-sm">
-                Приватный
-              </span>
-            )}
-          </div>
+          {isEditing ? (
+            <div className="w-full space-y-4">
+              <Input
+                label="Название *"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Название киновечера"
+                disabled={isUpdating}
+              />
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-300">
+                  Описание
+                </label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Описание киновечера..."
+                  rows={3}
+                  disabled={isUpdating}
+                  className="w-full rounded-lg border border-dark-600 bg-dark-700 px-4 py-2 text-dark-100 placeholder-dark-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  isLoading={isUpdating}
+                  disabled={!editTitle.trim() || editTitle.trim().length < 3}
+                  onClick={saveEditing}
+                >
+                  Сохранить
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={isUpdating}
+                  onClick={cancelEditing}
+                >
+                  Отмена
+                </Button>
+              </div>
+              {updateError && (
+                <p className="text-sm text-red-500">{updateError}</p>
+              )}
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-dark-100">
+                {evening.title}
+              </h1>
+              <div className="flex items-center space-x-3">
+                {isAuthenticated && user?.id === evening.createdBy.id && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={startEditing}
+                    >
+                      Редактировать
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      isLoading={isDeleting}
+                      onClick={handleDeleteClick}
+                    >
+                      Удалить
+                    </Button>
+                  </>
+                )}
+                {evening.isPrivate && (
+                  <span className="rounded bg-dark-700 px-3 py-1 text-sm">
+                    Приватный
+                  </span>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
-        <p className="mb-4 text-dark-300">{evening.description}</p>
+        {!isEditing && (
+          <p className="mb-4 text-dark-300">{evening.description}</p>
+        )}
 
         <div className="mb-6 flex items-center text-sm text-dark-500">
           <span>

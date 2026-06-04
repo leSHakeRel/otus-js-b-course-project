@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -6,6 +7,7 @@ const mockEveningsApi = {
   getById: vi.fn(),
   delete: vi.fn(),
   removeMovie: vi.fn(),
+  update: vi.fn(),
 };
 
 vi.mock('@/api/evenings.api', () => ({
@@ -481,5 +483,280 @@ describe('EveningDetail', () => {
     });
 
     expect(screen.getByTitle('По возрастанию')).toBeInTheDocument();
+  });
+
+  describe('Edit mode', () => {
+    it('shows edit button for owner', async () => {
+      mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
+
+      const { useAuth } = await import('@/contexts/AuthContext');
+      vi.mocked(useAuth).mockReturnValue({
+        isAuthenticated: true,
+        user: {
+          id: 'user-1',
+          email: 'user@test.com',
+          username: 'TestUser',
+          createdAt: '',
+        },
+        token: 'token',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateProfile: vi.fn(),
+        isLoading: false,
+      });
+
+      const { useMovieRatings } = await import('@/hooks/useMovieRatings');
+      vi.mocked(useMovieRatings).mockReturnValue({
+        imdbRating: null,
+        kinopoiskRating: null,
+        kinopoiskNameRu: null,
+        kinopoiskDescription: null,
+        kinopoiskShortDescription: null,
+        isLoading: false,
+      });
+
+      const { EveningDetail } = await import('@/pages/EveningDetail');
+
+      render(
+        <MemoryRouter initialEntries={['/evenings/evening-1']}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Редактировать')).toBeInTheDocument();
+    });
+
+    it('does not show edit button for non-owner', async () => {
+      mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
+
+      const { useAuth } = await import('@/contexts/AuthContext');
+      vi.mocked(useAuth).mockReturnValue({
+        isAuthenticated: true,
+        user: {
+          id: 'user-2',
+          email: 'other@test.com',
+          username: 'OtherUser',
+          createdAt: '',
+        },
+        token: 'token',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateProfile: vi.fn(),
+        isLoading: false,
+      });
+
+      const { useMovieRatings } = await import('@/hooks/useMovieRatings');
+      vi.mocked(useMovieRatings).mockReturnValue({
+        imdbRating: null,
+        kinopoiskRating: null,
+        kinopoiskNameRu: null,
+        kinopoiskDescription: null,
+        kinopoiskShortDescription: null,
+        isLoading: false,
+      });
+
+      const { EveningDetail } = await import('@/pages/EveningDetail');
+
+      render(
+        <MemoryRouter initialEntries={['/evenings/evening-1']}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Редактировать')).not.toBeInTheDocument();
+    });
+
+    it('clicking edit switches to edit mode with pre-filled values', async () => {
+      const user = userEvent.setup();
+      mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
+
+      const { useAuth } = await import('@/contexts/AuthContext');
+      vi.mocked(useAuth).mockReturnValue({
+        isAuthenticated: true,
+        user: {
+          id: 'user-1',
+          email: 'user@test.com',
+          username: 'TestUser',
+          createdAt: '',
+        },
+        token: 'token',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateProfile: vi.fn(),
+        isLoading: false,
+      });
+
+      const { useMovieRatings } = await import('@/hooks/useMovieRatings');
+      vi.mocked(useMovieRatings).mockReturnValue({
+        imdbRating: null,
+        kinopoiskRating: null,
+        kinopoiskNameRu: null,
+        kinopoiskDescription: null,
+        kinopoiskShortDescription: null,
+        isLoading: false,
+      });
+
+      const { EveningDetail } = await import('@/pages/EveningDetail');
+
+      render(
+        <MemoryRouter initialEntries={['/evenings/evening-1']}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Редактировать'));
+
+      expect(screen.getByDisplayValue('Test Evening')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Test description')).toBeInTheDocument();
+      expect(screen.getByText('Сохранить')).toBeInTheDocument();
+      expect(screen.getByText('Отмена')).toBeInTheDocument();
+    });
+
+    it('cancelling edit restores original view', async () => {
+      const user = userEvent.setup();
+      mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
+
+      const { useAuth } = await import('@/contexts/AuthContext');
+      vi.mocked(useAuth).mockReturnValue({
+        isAuthenticated: true,
+        user: {
+          id: 'user-1',
+          email: 'user@test.com',
+          username: 'TestUser',
+          createdAt: '',
+        },
+        token: 'token',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateProfile: vi.fn(),
+        isLoading: false,
+      });
+
+      const { useMovieRatings } = await import('@/hooks/useMovieRatings');
+      vi.mocked(useMovieRatings).mockReturnValue({
+        imdbRating: null,
+        kinopoiskRating: null,
+        kinopoiskNameRu: null,
+        kinopoiskDescription: null,
+        kinopoiskShortDescription: null,
+        isLoading: false,
+      });
+
+      const { EveningDetail } = await import('@/pages/EveningDetail');
+
+      render(
+        <MemoryRouter initialEntries={['/evenings/evening-1']}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Редактировать'));
+      await user.click(screen.getByText('Отмена'));
+
+      expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      expect(screen.getByText('Test description')).toBeInTheDocument();
+      expect(
+        screen.queryByDisplayValue('Test Evening')
+      ).not.toBeInTheDocument();
+    });
+
+    it('saving edits calls update API and updates display', async () => {
+      const user = userEvent.setup();
+      mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
+      mockEveningsApi.update.mockResolvedValue({ ...mockEveningDetail });
+
+      const { useAuth } = await import('@/contexts/AuthContext');
+      vi.mocked(useAuth).mockReturnValue({
+        isAuthenticated: true,
+        user: {
+          id: 'user-1',
+          email: 'user@test.com',
+          username: 'TestUser',
+          createdAt: '',
+        },
+        token: 'token',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        updateProfile: vi.fn(),
+        isLoading: false,
+      });
+
+      const { useMovieRatings } = await import('@/hooks/useMovieRatings');
+      vi.mocked(useMovieRatings).mockReturnValue({
+        imdbRating: null,
+        kinopoiskRating: null,
+        kinopoiskNameRu: null,
+        kinopoiskDescription: null,
+        kinopoiskShortDescription: null,
+        isLoading: false,
+      });
+
+      const { EveningDetail } = await import('@/pages/EveningDetail');
+
+      render(
+        <MemoryRouter initialEntries={['/evenings/evening-1']}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Evening')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Редактировать'));
+
+      const titleInput = screen.getByDisplayValue('Test Evening');
+      await user.clear(titleInput);
+      await user.type(titleInput, 'New Title');
+
+      const descInput = screen.getByDisplayValue('Test description');
+      await user.clear(descInput);
+      await user.type(descInput, 'New Description');
+
+      await user.click(screen.getByText('Сохранить'));
+
+      await waitFor(() => {
+        expect(mockEveningsApi.update).toHaveBeenCalledWith('evening-1', {
+          title: 'New Title',
+          description: 'New Description',
+        });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('New Title')).toBeInTheDocument();
+      });
+      expect(screen.getByText('New Description')).toBeInTheDocument();
+    });
   });
 });
