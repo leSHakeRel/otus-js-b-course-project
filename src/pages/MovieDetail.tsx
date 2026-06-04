@@ -104,7 +104,7 @@ export const MovieDetail: React.FC = () => {
         </Link>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card>
         <div className="md:flex">
           {movie.posterPath ? (
             <div className="flex-shrink-0 md:w-1/3">
@@ -119,7 +119,7 @@ export const MovieDetail: React.FC = () => {
               <span className="text-lg text-dark-400">Нет изображения</span>
             </div>
           )}
-          <div className="flex-1 p-6 md:p-8">
+          <div className="flex-1 px-6 pt-6 md:px-4 md:pt-4">
             <h1 className="mb-4 text-3xl font-bold text-dark-100">
               {movie.title}
             </h1>
