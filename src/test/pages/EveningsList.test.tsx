@@ -4,16 +4,18 @@ import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { EveningsList } from '@/pages/EveningsList';
 
-const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockUsePaginatedFetch = vi.hoisted(() => vi.fn());
-
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: mockUseAuth,
+vi.mock('@/components/common/IsAuthenticated', () => ({
+  IsAuthenticated: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
+
+const mockUsePaginatedFetch = vi.hoisted(() => vi.fn());
 
 vi.mock('@/hooks/usePaginatedFetch', () => ({
   usePaginatedFetch: mockUsePaginatedFetch,
 }));
+
+const mockUseAuth = vi.hoisted(() => vi.fn());
+vi.mock('@/contexts/AuthContext', () => ({ useAuth: mockUseAuth }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <MemoryRouter>{children}</MemoryRouter>
@@ -40,28 +42,24 @@ const mockEvenings = [
   },
 ];
 
+const authValue = {
+  isAuthenticated: true,
+  user: { id: '1', email: 'test@test.com', username: 'test', createdAt: '' },
+  token: 'token',
+  login: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+  updateProfile: vi.fn(),
+  isLoading: false,
+};
+
 describe('EveningsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuth.mockReturnValue(authValue);
   });
 
   it('shows loading state', () => {
-    mockUseAuth.mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: true,
-    });
-
     mockUsePaginatedFetch.mockReturnValue({
       data: [],
       isLoading: true,
@@ -71,28 +69,11 @@ describe('EveningsList', () => {
       setPage: vi.fn(),
       refetch: vi.fn(),
     });
-
     render(<EveningsList />, { wrapper });
     expect(screen.getByText(/загрузка/i)).toBeInTheDocument();
   });
 
   it('shows error state', () => {
-    mockUseAuth.mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     mockUsePaginatedFetch.mockReturnValue({
       data: [],
       isLoading: false,
@@ -102,28 +83,11 @@ describe('EveningsList', () => {
       setPage: vi.fn(),
       refetch: vi.fn(),
     });
-
     render(<EveningsList />, { wrapper });
     expect(screen.getByText(/ошибка загрузки/i)).toBeInTheDocument();
   });
 
   it('renders list of evenings', () => {
-    mockUseAuth.mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     mockUsePaginatedFetch.mockReturnValue({
       data: mockEvenings,
       isLoading: false,
@@ -133,30 +97,12 @@ describe('EveningsList', () => {
       setPage: vi.fn(),
       refetch: vi.fn(),
     });
-
     render(<EveningsList />, { wrapper });
-
     expect(screen.getByText('Evening 1')).toBeInTheDocument();
     expect(screen.getByText('Киновечера')).toBeInTheDocument();
   });
 
   it('shows creates evening button when authenticated', () => {
-    mockUseAuth.mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     mockUsePaginatedFetch.mockReturnValue({
       data: mockEvenings,
       isLoading: false,
@@ -166,7 +112,6 @@ describe('EveningsList', () => {
       setPage: vi.fn(),
       refetch: vi.fn(),
     });
-
     render(<EveningsList />, { wrapper });
     expect(screen.getByText('Создать киновечер')).toBeInTheDocument();
   });

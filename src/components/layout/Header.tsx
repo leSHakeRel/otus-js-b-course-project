@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
 export const Header: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = (): void => {
@@ -20,7 +21,7 @@ export const Header: React.FC = () => {
           </Link>
 
           <nav className="flex items-center space-x-4">
-            {isAuthenticated && (
+            <IsAuthenticated>
               <>
                 <Link
                   to="/movies"
@@ -35,8 +36,25 @@ export const Header: React.FC = () => {
                   Пользователи
                 </Link>
               </>
-            )}
-            {isAuthenticated ? (
+            </IsAuthenticated>
+            <IsAuthenticated
+              fallback={
+                <>
+                  <Link
+                    to="/login"
+                    className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
+                  >
+                    Войти
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="rounded-lg bg-primary-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-primary-700"
+                  >
+                    Регистрация
+                  </Link>
+                </>
+              }
+            >
               <>
                 <Link
                   to="/profile"
@@ -51,22 +69,7 @@ export const Header: React.FC = () => {
                   Выйти
                 </button>
               </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
-                >
-                  Войти
-                </Link>
-                <Link
-                  to="/register"
-                  className="rounded-lg bg-primary-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-primary-700"
-                >
-                  Регистрация
-                </Link>
-              </>
-            )}
+            </IsAuthenticated>
           </nav>
         </div>
       </div>

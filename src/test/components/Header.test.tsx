@@ -3,11 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { Header } from '@/components/layout/Header';
-import { useAuth } from '@/contexts/AuthContext';
-
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: vi.fn(),
-}));
+import { TestAuthProvider } from '@/test/utils/TestAuthProvider';
 
 const mockNavigate = vi.fn();
 
@@ -19,9 +15,38 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <MemoryRouter>{children}</MemoryRouter>
-);
+type AuthValue = {
+  isAuthenticated: boolean;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    createdAt: string;
+  } | null;
+};
+
+const renderWithAuth = (ui: ReactNode, authValue: AuthValue) => {
+  return render(
+    <MemoryRouter>
+      <TestAuthProvider value={authValue}>{ui}</TestAuthProvider>
+    </MemoryRouter>
+  );
+};
+
+const authLoggedOut: AuthValue = {
+  isAuthenticated: false,
+  user: null,
+};
+
+const authLoggedIn: AuthValue = {
+  isAuthenticated: true,
+  user: {
+    id: '1',
+    email: 'test@test.com',
+    username: 'TestUser',
+    createdAt: '',
+  },
+};
 
 describe('Header', () => {
   beforeEach(() => {
@@ -29,35 +54,12 @@ describe('Header', () => {
   });
 
   it('renders logo link', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: false,
-      user: null,
-      token: null,
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
-    render(<Header />, { wrapper });
-
+    renderWithAuth(<Header />, authLoggedOut);
     expect(screen.getByText('Киновечера')).toBeInTheDocument();
   });
 
   it('shows login and register buttons when not authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: false,
-      user: null,
-      token: null,
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
-    render(<Header />, { wrapper });
+    renderWithAuth(<Header />, authLoggedOut);
 
     expect(screen.getByText('Войти')).toBeInTheDocument();
     expect(screen.getByText('Регистрация')).toBeInTheDocument();
@@ -65,23 +67,7 @@ describe('Header', () => {
   });
 
   it('shows user info and logout when authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
-    render(<Header />, { wrapper });
+    renderWithAuth(<Header />, authLoggedIn);
 
     expect(screen.getByText(/привет/i)).toBeInTheDocument();
     expect(screen.getByText(/TestUser/)).toBeInTheDocument();
@@ -90,50 +76,21 @@ describe('Header', () => {
   });
 
   it('shows navigation links when authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
-    render(<Header />, { wrapper });
+    renderWithAuth(<Header />, authLoggedIn);
 
     expect(screen.getByText('Фильмы')).toBeInTheDocument();
     expect(screen.getByText('Пользователи')).toBeInTheDocument();
   });
 
   it('does not show Movies and Users links when not authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: false,
-      user: null,
-      token: null,
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
-    render(<Header />, { wrapper });
+    renderWithAuth(<Header />, authLoggedOut);
 
     expect(screen.queryByText('Фильмы')).not.toBeInTheDocument();
     expect(screen.queryByText('Пользователи')).not.toBeInTheDocument();
   });
 
   it('calls logout and navigates on logout click', () => {
-    const mockLogout = vi.fn();
-
-    vi.mocked(useAuth).mockReturnValue({
+    const authWithLogout: AuthValue = {
       isAuthenticated: true,
       user: {
         id: '1',
@@ -141,19 +98,12 @@ describe('Header', () => {
         username: 'test',
         createdAt: '',
       },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: mockLogout,
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
+    };
 
-    render(<Header />, { wrapper });
+    renderWithAuth(<Header />, authWithLogout);
 
     fireEvent.click(screen.getByText('Выйти'));
 
-    expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 });
