@@ -21,22 +21,6 @@ export const Header: React.FC = () => {
           </Link>
 
           <nav className="flex items-center space-x-4">
-            <IsAuthenticated>
-              <>
-                <Link
-                  to="/movies"
-                  className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
-                >
-                  Фильмы
-                </Link>
-                <Link
-                  to="/users"
-                  className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
-                >
-                  Пользователи
-                </Link>
-              </>
-            </IsAuthenticated>
             <IsAuthenticated
               fallback={
                 <>
@@ -56,6 +40,18 @@ export const Header: React.FC = () => {
               }
             >
               <>
+                <Link
+                  to="/movies"
+                  className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
+                >
+                  Фильмы
+                </Link>
+                <Link
+                  to="/users"
+                  className="rounded-lg bg-dark-700 px-4 py-2 text-dark-100 transition-colors duration-200 hover:bg-dark-600"
+                >
+                  Пользователи
+                </Link>
                 <Link
                   to="/profile"
                   className="text-dark-300 transition-colors duration-200 hover:text-primary-500"
