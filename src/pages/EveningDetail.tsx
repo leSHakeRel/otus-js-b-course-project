@@ -12,6 +12,7 @@ import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MovieRatingsProps {
@@ -74,7 +75,6 @@ const SORT_OPTIONS: { label: string; field: SortField }[] = [
 interface MovieCardItemProps {
   movie: EveningMovie;
   isOwner: boolean;
-  isAuthenticated: boolean;
   hasVoted: boolean;
   votingMovieId: string | null;
   removingMovieTmdbId: number | null;
@@ -87,7 +87,6 @@ interface MovieCardItemProps {
 const MovieCardItem: React.FC<MovieCardItemProps> = ({
   movie,
   isOwner,
-  isAuthenticated,
   hasVoted,
   votingMovieId,
   removingMovieTmdbId,
@@ -151,7 +150,16 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
         </div>
       </div>
       <div className="flex flex-shrink-0 items-center space-x-4">
-        {isAuthenticated ? (
+        <IsAuthenticated
+          fallback={
+            <div className="text-right">
+              <p className="text-sm text-dark-400">Голосов</p>
+              <p className="text-lg font-semibold text-primary-500">
+                {eveningVotesCount}
+              </p>
+            </div>
+          }
+        >
           <button
             onClick={() => onToggleVote(movie.id, currentUserId!)}
             disabled={votingMovieId === movie.id}
@@ -210,14 +218,7 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
               {eveningVotesCount}
             </span>
           </button>
-        ) : (
-          <div className="text-right">
-            <p className="text-sm text-dark-400">Голосов</p>
-            <p className="text-lg font-semibold text-primary-500">
-              {eveningVotesCount}
-            </p>
-          </div>
-        )}
+        </IsAuthenticated>
         {isOwner && (
           <Button
             variant="danger"
@@ -512,25 +513,27 @@ export const EveningDetail: React.FC = () => {
                 {evening.title}
               </h1>
               <div className="flex items-center space-x-3">
-                {isAuthenticated && user?.id === evening.createdBy.id && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={startEditing}
-                    >
-                      Редактировать
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      isLoading={isDeleting}
-                      onClick={handleDeleteClick}
-                    >
-                      Удалить
-                    </Button>
-                  </>
-                )}
+                <IsAuthenticated>
+                  {user?.id === evening.createdBy.id && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={startEditing}
+                      >
+                        Редактировать
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        isLoading={isDeleting}
+                        onClick={handleDeleteClick}
+                      >
+                        Удалить
+                      </Button>
+                    </>
+                  )}
+                </IsAuthenticated>
                 {evening.isPrivate && (
                   <span className="rounded bg-dark-700 px-3 py-1 text-sm">
                     Приватный
@@ -608,7 +611,6 @@ export const EveningDetail: React.FC = () => {
                     key={movie.id}
                     movie={movie}
                     isOwner={isOwner}
-                    isAuthenticated={isAuthenticated}
                     hasVoted={hasVoted}
                     votingMovieId={votingMovieId}
                     removingMovieTmdbId={removingMovieTmdbId}
@@ -622,11 +624,11 @@ export const EveningDetail: React.FC = () => {
             </div>
           )}
 
-          {isAuthenticated && (
+          <IsAuthenticated>
             <Link to={`/evenings/${id}/movies`}>
               <Button variant="secondary">Добавить фильм</Button>
             </Link>
-          )}
+          </IsAuthenticated>
         </div>
 
         <div className="mt-6 border-t border-dark-700 pt-6">
@@ -654,7 +656,7 @@ export const EveningDetail: React.FC = () => {
             </div>
           )}
 
-          {isAuthenticated && (
+          <IsAuthenticated>
             <div className="mt-4">
               <textarea
                 value={newComment}
@@ -676,7 +678,7 @@ export const EveningDetail: React.FC = () => {
                 </Button>
               </div>
             </div>
-          )}
+          </IsAuthenticated>
         </div>
       </Card>
     </div>
