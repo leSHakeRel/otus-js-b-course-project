@@ -10,11 +10,10 @@ import { Card } from '@/components/common/Card';
 import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
-import { useAuth } from '@/contexts/AuthContext';
+import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
 export const MovieDetail: React.FC = () => {
   const { tmdbId } = useParams<{ tmdbId: string }>();
-  const { isAuthenticated } = useAuth();
 
   const [movie, setMovie] = useState<Movie | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,7 +159,7 @@ export const MovieDetail: React.FC = () => {
               {movie.overview}
             </p>
 
-            {isAuthenticated && (
+            <IsAuthenticated>
               <div className="relative">
                 <Button
                   onClick={() => setShowEveningPicker(!showEveningPicker)}
@@ -192,7 +191,7 @@ export const MovieDetail: React.FC = () => {
                   </div>
                 )}
               </div>
-            )}
+            </IsAuthenticated>
           </div>
         </div>
       </Card>

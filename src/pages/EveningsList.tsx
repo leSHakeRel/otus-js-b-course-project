@@ -8,6 +8,7 @@ import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
 import { useAuth } from '@/contexts/AuthContext';
+import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
 type FilterTab = 'all' | 'public' | 'my';
 
@@ -79,11 +80,11 @@ export const EveningsList: React.FC = () => {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-dark-100">Киновечера</h1>
-        {isAuthenticated && (
+        <IsAuthenticated>
           <Link to="/evenings/new">
             <Button variant="secondary">Создать киновечер</Button>
           </Link>
-        )}
+        </IsAuthenticated>
       </div>
 
       {/* Filter tabs */}
@@ -105,7 +106,16 @@ export const EveningsList: React.FC = () => {
 
       {evenings.length === 0 ? (
         <div className="py-12 text-center">
-          {isAuthenticated ? (
+          <IsAuthenticated
+            fallback={
+              <Link
+                to="/login"
+                className="text-primary-500 hover:text-primary-400"
+              >
+                Войдите, чтобы создать первый киновечер
+              </Link>
+            }
+          >
             <>
               <p className="mb-4 text-dark-400">
                 {filterTab === 'my'
@@ -121,14 +131,7 @@ export const EveningsList: React.FC = () => {
                 </Link>
               )}
             </>
-          ) : (
-            <Link
-              to="/login"
-              className="text-primary-500 hover:text-primary-400"
-            >
-              Войдите, чтобы создать первый киновечер
-            </Link>
-          )}
+          </IsAuthenticated>
         </div>
       ) : (
         <>
@@ -174,18 +177,20 @@ export const EveningsList: React.FC = () => {
                         )}
                       </Card>
                     </Link>
-                    {isAuthenticated && isAuthor && (
-                      <div className="absolute right-2 top-2 z-10">
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          isLoading={deletingId === evening.id}
-                          onClick={(e) => handleDelete(e, evening.id)}
-                        >
-                          Удалить
-                        </Button>
-                      </div>
-                    )}
+                    <IsAuthenticated>
+                      {isAuthor && (
+                        <div className="absolute right-2 top-2 z-10">
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            isLoading={deletingId === evening.id}
+                            onClick={(e) => handleDelete(e, evening.id)}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      )}
+                    </IsAuthenticated>
                   </div>
                 );
               } catch (err) {

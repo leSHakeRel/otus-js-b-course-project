@@ -3,14 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { MoviesList } from '@/pages/MoviesList';
+import { TestAuthProvider } from '@/test/utils/TestAuthProvider';
 
-const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockUsePaginatedFetch = vi.hoisted(() => vi.fn());
 const mockUseUserEvenings = vi.hoisted(() => vi.fn());
-
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: mockUseAuth,
-}));
 
 vi.mock('@/hooks/usePaginatedFetch', () => ({
   usePaginatedFetch: mockUsePaginatedFetch,
@@ -33,7 +29,21 @@ vi.mock('@/hooks/useAsyncAction', () => ({
 }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <MemoryRouter>{children}</MemoryRouter>
+  <MemoryRouter>
+    <TestAuthProvider
+      value={{
+        isAuthenticated: true,
+        user: {
+          id: '1',
+          email: 'test@test.com',
+          username: 'test',
+          createdAt: '',
+        },
+      }}
+    >
+      {children}
+    </TestAuthProvider>
+  </MemoryRouter>
 );
 
 const mockMovies = [
@@ -54,21 +64,6 @@ describe('MoviesList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseUserEvenings.mockReturnValue({ evenings: [], isLoading: false });
-    mockUseAuth.mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: '1',
-        email: 'test@test.com',
-        username: 'test',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
   });
 
   it('shows loading state', () => {
