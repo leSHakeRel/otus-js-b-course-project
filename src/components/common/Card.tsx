@@ -1,16 +1,12 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 
 interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   onClick?: () => void;
 }
 
-export const Card: React.FC<CardProps> = ({
-  children,
-  className = '',
-  onClick,
-}) => {
+export const Card = ({ children, className = '', onClick }: CardProps) => {
   return (
     <div
       className={`rounded-xl bg-dark-800 p-6 shadow-lg ${

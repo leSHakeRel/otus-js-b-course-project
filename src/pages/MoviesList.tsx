@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { moviesApi } from '@/api/movies.api';
 import { eveningsApi } from '@/api/evenings.api';
@@ -10,10 +10,9 @@ import { Card } from '@/components/common/Card';
 import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
-import { useAuth } from '@/contexts/AuthContext';
+import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
-export const MoviesList: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+export const MoviesList = () => {
   const {
     data: movies,
     isLoading,
@@ -113,7 +112,7 @@ export const MoviesList: React.FC = () => {
                           : 'N/A'}
                       </span>
                     </div>
-                    {isAuthenticated && (
+                    <IsAuthenticated>
                       <div className="relative mt-3">
                         <Button
                           variant="secondary"
@@ -160,7 +159,7 @@ export const MoviesList: React.FC = () => {
                           </div>
                         )}
                       </div>
-                    )}
+                    </IsAuthenticated>
                   </div>
                 </div>
               </Card>

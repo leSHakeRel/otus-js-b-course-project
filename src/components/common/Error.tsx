@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from './Button';
 
 interface ErrorProps {
@@ -6,7 +5,7 @@ interface ErrorProps {
   onRetry?: () => void;
 }
 
-export const Error: React.FC<ErrorProps> = ({ message, onRetry }) => {
+export const Error = ({ message, onRetry }: ErrorProps) => {
   return (
     <div className="flex flex-col items-center justify-center p-8">
       <div className="mb-4 text-4xl text-red-500">⚠️</div>

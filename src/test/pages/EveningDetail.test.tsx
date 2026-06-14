@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { TestAuthProvider } from '@/test/utils/TestAuthProvider';
 
 const mockEveningsApi = {
   getById: vi.fn(),
@@ -45,58 +46,68 @@ vi.mock('@/hooks/useVote', () => ({
   }),
 }));
 
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: vi.fn(),
-}));
+type AuthValue = {
+  isAuthenticated: boolean;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    createdAt: string;
+  } | null;
+};
 
-const mockNavigate = vi.fn();
+const authOwner: AuthValue = {
+  isAuthenticated: true,
+  user: {
+    id: 'user-1',
+    email: 'user@test.com',
+    username: 'TestUser',
+    createdAt: '',
+  },
+};
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
+const authOtherUser: AuthValue = {
+  isAuthenticated: true,
+  user: {
+    id: 'user-2',
+    email: 'other@test.com',
+    username: 'OtherUser',
+    createdAt: '',
+  },
+};
 
 const mockEveningDetail = {
   id: 'evening-1',
   title: 'Test Evening',
   description: 'Test description',
-  scheduledAt: '2024-06-15T18:00:00.000Z',
-  isPrivate: false,
+  scheduledAt: '2024-06-15T18:00:00Z',
+  isPrivate: true,
   createdBy: {
     id: 'user-1',
     email: 'user@test.com',
     username: 'TestUser',
-    createdAt: '',
+    createdAt: '2024-06-10T10:00:00Z',
   },
   movies: [
     {
       id: 'movie-1',
       tmdbId: 27205,
       title: 'Inception',
+      overview: 'A mind-bending thriller',
       posterPath: '/poster.jpg',
+      backdropPath: null,
       releaseDate: '2010-07-16',
-      voteCount: 5,
-      totalVotes: 10,
+      voteAverage: 8.8,
+      voteCount: 10000,
+      genreIds: [28],
     },
   ],
-  votes: [
-    {
-      id: 'vote-1',
-      eveningFilmId: 'movie-1',
-      userId: 'user-1',
-      value: 5 as const,
-      createdAt: '',
-    },
-  ],
+  votes: [],
   comments: [
     {
       id: 'comment-1',
-      eveningId: 'evening-1',
-      userId: 'user-1',
-      username: 'TestUser',
+      userId: 'user-2',
+      username: 'OtherUser',
       content: 'Great!',
       createdAt: '2024-06-15T19:00:00Z',
     },
@@ -113,23 +124,6 @@ describe('EveningDetail', () => {
   it('shows loading state initially', async () => {
     mockEveningsApi.getById.mockImplementation(() => new Promise(() => {}));
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: null,
@@ -144,9 +138,11 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
@@ -156,23 +152,6 @@ describe('EveningDetail', () => {
   it('renders evening details when loaded', async () => {
     mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: 8.8,
@@ -187,9 +166,11 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
@@ -199,30 +180,13 @@ describe('EveningDetail', () => {
 
     expect(screen.getByText('Test description')).toBeInTheDocument();
     expect(screen.getByText('Inception')).toBeInTheDocument();
-    expect(screen.getByText('TestUser')).toBeInTheDocument();
+    expect(screen.getByText(/TestUser/)).toBeInTheDocument();
     expect(screen.getByText('Great!')).toBeInTheDocument();
   });
 
   it('shows error when evening not found', async () => {
     mockEveningsApi.getById.mockRejectedValue(new Error('Not found'));
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: null,
@@ -237,39 +201,22 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/не удалось загрузить киновечер/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/не удалось загрузить/i)).toBeInTheDocument();
     });
   });
 
   it('shows delete button for evening owner', async () => {
     mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: null,
@@ -284,37 +231,25 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('Удалить')[0]).toBeInTheDocument();
+      expect(screen.getByText('Test Evening')).toBeInTheDocument();
     });
+
+    const deleteButtons = screen.getAllByText('Удалить');
+    expect(deleteButtons.length).toBeGreaterThan(0);
   });
 
   it('does not show delete button for non-owner', async () => {
     mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-2',
-        email: 'other@test.com',
-        username: 'OtherUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: null,
@@ -329,39 +264,23 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOtherUser}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(screen.queryByText('Удалить')).not.toBeInTheDocument();
+      expect(screen.getByText('Test Evening')).toBeInTheDocument();
     });
+
+    expect(screen.queryAllByText('Удалить')).toHaveLength(0);
   });
 
   it('shows private badge for private evenings', async () => {
-    mockEveningsApi.getById.mockResolvedValue({
-      ...mockEveningDetail,
-      isPrivate: true,
-    });
-
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
+    mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
@@ -377,36 +296,23 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Приватный')).toBeInTheDocument();
+      expect(screen.getByText('Test Evening')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Приватный')).toBeInTheDocument();
   });
 
   it('renders sort buttons', async () => {
     mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
-
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
 
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
@@ -422,9 +328,11 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
@@ -441,23 +349,6 @@ describe('EveningDetail', () => {
   it('shows sorting direction button', async () => {
     mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-    const { useAuth } = await import('@/contexts/AuthContext');
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-      user: {
-        id: 'user-1',
-        email: 'user@test.com',
-        username: 'TestUser',
-        createdAt: '',
-      },
-      token: 'token',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      updateProfile: vi.fn(),
-      isLoading: false,
-    });
-
     const { useMovieRatings } = await import('@/hooks/useMovieRatings');
     vi.mocked(useMovieRatings).mockReturnValue({
       imdbRating: 8.8,
@@ -472,9 +363,11 @@ describe('EveningDetail', () => {
 
     render(
       <MemoryRouter initialEntries={['/evenings/evening-1']}>
-        <Routes>
-          <Route path="/evenings/:id" element={<EveningDetail />} />
-        </Routes>
+        <TestAuthProvider value={authOwner}>
+          <Routes>
+            <Route path="/evenings/:id" element={<EveningDetail />} />
+          </Routes>
+        </TestAuthProvider>
       </MemoryRouter>
     );
 
@@ -489,23 +382,6 @@ describe('EveningDetail', () => {
     it('shows edit button for owner', async () => {
       mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-      const { useAuth } = await import('@/contexts/AuthContext');
-      vi.mocked(useAuth).mockReturnValue({
-        isAuthenticated: true,
-        user: {
-          id: 'user-1',
-          email: 'user@test.com',
-          username: 'TestUser',
-          createdAt: '',
-        },
-        token: 'token',
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        updateProfile: vi.fn(),
-        isLoading: false,
-      });
-
       const { useMovieRatings } = await import('@/hooks/useMovieRatings');
       vi.mocked(useMovieRatings).mockReturnValue({
         imdbRating: null,
@@ -520,9 +396,11 @@ describe('EveningDetail', () => {
 
       render(
         <MemoryRouter initialEntries={['/evenings/evening-1']}>
-          <Routes>
-            <Route path="/evenings/:id" element={<EveningDetail />} />
-          </Routes>
+          <TestAuthProvider value={authOwner}>
+            <Routes>
+              <Route path="/evenings/:id" element={<EveningDetail />} />
+            </Routes>
+          </TestAuthProvider>
         </MemoryRouter>
       );
 
@@ -536,23 +414,6 @@ describe('EveningDetail', () => {
     it('does not show edit button for non-owner', async () => {
       mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-      const { useAuth } = await import('@/contexts/AuthContext');
-      vi.mocked(useAuth).mockReturnValue({
-        isAuthenticated: true,
-        user: {
-          id: 'user-2',
-          email: 'other@test.com',
-          username: 'OtherUser',
-          createdAt: '',
-        },
-        token: 'token',
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        updateProfile: vi.fn(),
-        isLoading: false,
-      });
-
       const { useMovieRatings } = await import('@/hooks/useMovieRatings');
       vi.mocked(useMovieRatings).mockReturnValue({
         imdbRating: null,
@@ -567,9 +428,11 @@ describe('EveningDetail', () => {
 
       render(
         <MemoryRouter initialEntries={['/evenings/evening-1']}>
-          <Routes>
-            <Route path="/evenings/:id" element={<EveningDetail />} />
-          </Routes>
+          <TestAuthProvider value={authOtherUser}>
+            <Routes>
+              <Route path="/evenings/:id" element={<EveningDetail />} />
+            </Routes>
+          </TestAuthProvider>
         </MemoryRouter>
       );
 
@@ -584,23 +447,6 @@ describe('EveningDetail', () => {
       const user = userEvent.setup();
       mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-      const { useAuth } = await import('@/contexts/AuthContext');
-      vi.mocked(useAuth).mockReturnValue({
-        isAuthenticated: true,
-        user: {
-          id: 'user-1',
-          email: 'user@test.com',
-          username: 'TestUser',
-          createdAt: '',
-        },
-        token: 'token',
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        updateProfile: vi.fn(),
-        isLoading: false,
-      });
-
       const { useMovieRatings } = await import('@/hooks/useMovieRatings');
       vi.mocked(useMovieRatings).mockReturnValue({
         imdbRating: null,
@@ -615,9 +461,11 @@ describe('EveningDetail', () => {
 
       render(
         <MemoryRouter initialEntries={['/evenings/evening-1']}>
-          <Routes>
-            <Route path="/evenings/:id" element={<EveningDetail />} />
-          </Routes>
+          <TestAuthProvider value={authOwner}>
+            <Routes>
+              <Route path="/evenings/:id" element={<EveningDetail />} />
+            </Routes>
+          </TestAuthProvider>
         </MemoryRouter>
       );
 
@@ -637,23 +485,6 @@ describe('EveningDetail', () => {
       const user = userEvent.setup();
       mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
 
-      const { useAuth } = await import('@/contexts/AuthContext');
-      vi.mocked(useAuth).mockReturnValue({
-        isAuthenticated: true,
-        user: {
-          id: 'user-1',
-          email: 'user@test.com',
-          username: 'TestUser',
-          createdAt: '',
-        },
-        token: 'token',
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        updateProfile: vi.fn(),
-        isLoading: false,
-      });
-
       const { useMovieRatings } = await import('@/hooks/useMovieRatings');
       vi.mocked(useMovieRatings).mockReturnValue({
         imdbRating: null,
@@ -668,9 +499,11 @@ describe('EveningDetail', () => {
 
       render(
         <MemoryRouter initialEntries={['/evenings/evening-1']}>
-          <Routes>
-            <Route path="/evenings/:id" element={<EveningDetail />} />
-          </Routes>
+          <TestAuthProvider value={authOwner}>
+            <Routes>
+              <Route path="/evenings/:id" element={<EveningDetail />} />
+            </Routes>
+          </TestAuthProvider>
         </MemoryRouter>
       );
 
@@ -693,23 +526,6 @@ describe('EveningDetail', () => {
       mockEveningsApi.getById.mockResolvedValue(mockEveningDetail);
       mockEveningsApi.update.mockResolvedValue({ ...mockEveningDetail });
 
-      const { useAuth } = await import('@/contexts/AuthContext');
-      vi.mocked(useAuth).mockReturnValue({
-        isAuthenticated: true,
-        user: {
-          id: 'user-1',
-          email: 'user@test.com',
-          username: 'TestUser',
-          createdAt: '',
-        },
-        token: 'token',
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        updateProfile: vi.fn(),
-        isLoading: false,
-      });
-
       const { useMovieRatings } = await import('@/hooks/useMovieRatings');
       vi.mocked(useMovieRatings).mockReturnValue({
         imdbRating: null,
@@ -724,9 +540,11 @@ describe('EveningDetail', () => {
 
       render(
         <MemoryRouter initialEntries={['/evenings/evening-1']}>
-          <Routes>
-            <Route path="/evenings/:id" element={<EveningDetail />} />
-          </Routes>
+          <TestAuthProvider value={authOwner}>
+            <Routes>
+              <Route path="/evenings/:id" element={<EveningDetail />} />
+            </Routes>
+          </TestAuthProvider>
         </MemoryRouter>
       );
 

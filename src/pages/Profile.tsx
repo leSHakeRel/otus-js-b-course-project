@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
@@ -6,7 +6,7 @@ import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 
-export const Profile: React.FC = () => {
+export const Profile = () => {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
 

@@ -1,14 +1,12 @@
-import React from 'react';
-
 interface LoadingProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
 }
 
-export const Loading: React.FC<LoadingProps> = ({
+export const Loading = ({
   message = 'Загрузка...',
   size = 'medium',
-}) => {
+}: LoadingProps) => {
   const sizeClasses = {
     small: 'py-4',
     medium: 'py-8',

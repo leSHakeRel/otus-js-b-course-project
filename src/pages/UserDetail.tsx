@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { usersApi } from '@/api/users.api';
 import { eveningsApi } from '@/api/evenings.api';
@@ -7,7 +7,7 @@ import { Card } from '@/components/common/Card';
 import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 
-export const UserDetail: React.FC = () => {
+export const UserDetail = () => {
   const { userId } = useParams<{ userId: string }>();
 
   const [user, setUser] = useState<User | null>(null);

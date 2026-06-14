@@ -8,12 +8,7 @@ export interface CreateEveningRequest {
   isPrivate: boolean;
 }
 
-export interface UpdateEveningRequest {
-  title?: string;
-  description?: string;
-  scheduledAt?: string;
-  isPrivate?: boolean;
-}
+type UpdateEveningRequest = Partial<CreateEveningRequest>;
 
 export interface EveningListResponse {
   data: Evening[];

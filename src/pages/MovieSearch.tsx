@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { moviesApi } from '@/api/movies.api';
 import { eveningsApi } from '@/api/evenings.api';
@@ -8,7 +8,7 @@ import { Card } from '@/components/common/Card';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 
-export const MovieSearch: React.FC = () => {
+export const MovieSearch = () => {
   const { id: eveningId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
