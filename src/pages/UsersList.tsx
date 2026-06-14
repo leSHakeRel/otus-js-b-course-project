@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { usersApi } from '@/api/users.api';
 import type { User } from '@/types';
@@ -8,7 +7,7 @@ import { Loading } from '@/components/common/Loading';
 import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
 
-export const UsersList: React.FC = () => {
+export const UsersList = () => {
   const {
     data: users,
     isLoading,

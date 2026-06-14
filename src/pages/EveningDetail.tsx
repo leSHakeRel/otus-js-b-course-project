@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { eveningsApi } from '@/api/evenings.api';
 import { commentsApi } from '@/api/comments.api';
@@ -27,13 +27,13 @@ interface MovieRatingsProps {
   isLoading: boolean;
 }
 
-const MovieRatings: React.FC<MovieRatingsProps> = ({
+const MovieRatings = ({
   title,
   imdbRating,
   kinopoiskRating,
   kinopoiskNameRu,
   isLoading,
-}) => {
+}: MovieRatingsProps) => {
   if (isLoading) {
     return (
       <>
@@ -87,7 +87,7 @@ interface MovieCardItemProps {
   currentUserId: string | undefined;
 }
 
-const MovieCardItem: React.FC<MovieCardItemProps> = ({
+const MovieCardItem = ({
   movie,
   isOwner,
   hasVoted,
@@ -97,7 +97,7 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
   onToggleVote,
   onRemoveMovie,
   currentUserId,
-}) => {
+}: MovieCardItemProps) => {
   const releaseYear = movie.releaseDate
     ? new Date(movie.releaseDate).getFullYear().toString()
     : undefined;
@@ -207,7 +207,7 @@ const MovieCardItem: React.FC<MovieCardItemProps> = ({
   );
 };
 
-export const EveningDetail: React.FC = () => {
+export const EveningDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();

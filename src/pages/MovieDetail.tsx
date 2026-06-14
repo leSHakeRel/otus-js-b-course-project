@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { moviesApi } from '@/api/movies.api';
 import { eveningsApi } from '@/api/evenings.api';
@@ -12,7 +12,7 @@ import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
 import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
-export const MovieDetail: React.FC = () => {
+export const MovieDetail = () => {
   const { tmdbId } = useParams<{ tmdbId: string }>();
 
   const [movie, setMovie] = useState<Movie | null>(null);

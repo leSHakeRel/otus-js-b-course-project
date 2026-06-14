@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { eveningsApi } from '@/api/evenings.api';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
@@ -14,7 +14,7 @@ function isValidUuid(value: string): boolean {
   return uuidRegex.test(value) && value !== ZERO_UUID;
 }
 
-export const CreateEvening: React.FC = () => {
+export const CreateEvening = () => {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');

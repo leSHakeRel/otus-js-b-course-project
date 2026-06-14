@@ -1,9 +1,8 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 
-export const NotFound: React.FC = () => {
+export const NotFound = () => {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="max-w-md text-center">

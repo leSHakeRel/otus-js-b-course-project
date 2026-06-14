@@ -1,9 +1,8 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
-export const Header: React.FC = () => {
+export const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 

@@ -15,9 +15,7 @@ import { UsersList } from '@/pages/UsersList';
 import { UserDetail } from '@/pages/UserDetail';
 import { NotFound } from '@/pages/NotFound';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -37,7 +35,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
-const AppRoutes: React.FC = () => {
+const AppRoutes = () => {
   return (
     <Layout>
       <Routes>

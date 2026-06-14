@@ -5,13 +5,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = ({
   label,
   error,
   className = '',
   id,
   ...props
-}) => {
+}: InputProps) => {
   const inputId =
     id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
   return (

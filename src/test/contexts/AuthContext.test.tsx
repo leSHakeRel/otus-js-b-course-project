@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -35,7 +34,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -67,7 +66,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -91,7 +90,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -121,7 +120,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -156,7 +155,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -183,7 +182,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -220,7 +219,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -261,7 +260,7 @@ describe('AuthContext', () => {
 
       let authState: ReturnType<typeof useAuth> | undefined;
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         authState = useAuth();
         return null;
       };
@@ -289,7 +288,7 @@ describe('AuthContext', () => {
     it('subscribes to unauthorized events on mount', async () => {
       const { AuthProvider, useAuth } = await import('@/contexts/AuthContext');
 
-      const Consumer: React.FC = () => {
+      const Consumer = () => {
         useAuth();
         return null;
       };
@@ -326,7 +325,7 @@ describe('AuthContext', () => {
     it('throws error when useAuth is used outside AuthProvider', async () => {
       const { useAuth } = await import('@/contexts/AuthContext');
 
-      const BadComponent: React.FC = () => {
+      const BadComponent = () => {
         useAuth();
         return null;
       };

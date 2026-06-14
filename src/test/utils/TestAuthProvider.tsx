@@ -1,4 +1,3 @@
-import React from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import type { User } from '@/types';
 import type { ReactNode } from 'react';
@@ -8,6 +7,11 @@ interface TestAuthValue {
   user: User | null;
   isLoading?: boolean;
   token?: string | null;
+}
+
+interface TestAuthProviderProps {
+  children: ReactNode;
+  value: TestAuthValue;
 }
 
 /**
@@ -21,10 +25,10 @@ interface TestAuthValue {
  *   </TestAuthProvider>
  * );
  */
-export const TestAuthProvider: React.FC<{
-  children: ReactNode;
-  value: TestAuthValue;
-}> = ({ children, value }) => {
+export const TestAuthProvider = ({
+  children,
+  value,
+}: TestAuthProviderProps) => {
   const authValue = {
     user: value.user,
     token: value.token ?? (value.isAuthenticated ? 'test-token' : null),

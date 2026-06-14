@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { moviesApi } from '@/api/movies.api';
 import { eveningsApi } from '@/api/evenings.api';
@@ -12,7 +12,7 @@ import { Error } from '@/components/common/Error';
 import { Button } from '@/components/common/Button';
 import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
-export const MoviesList: React.FC = () => {
+export const MoviesList = () => {
   const {
     data: movies,
     isLoading,

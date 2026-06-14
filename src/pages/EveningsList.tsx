@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { eveningsApi } from '@/api/evenings.api';
 import type { Evening } from '@/types';
@@ -12,7 +12,7 @@ import { IsAuthenticated } from '@/components/common/IsAuthenticated';
 
 type FilterTab = 'all' | 'public' | 'my';
 
-export const EveningsList: React.FC = () => {
+export const EveningsList = () => {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filterTab, setFilterTab] = useState<FilterTab>(() => {

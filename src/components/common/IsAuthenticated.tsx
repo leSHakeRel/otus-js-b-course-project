@@ -1,10 +1,10 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface IsAuthenticatedProps {
-  children: React.ReactNode;
+  children: ReactNode;
   /** Компонент для неаутентифицированного пользователя */
-  fallback?: React.ReactNode;
+  fallback?: ReactNode;
 }
 
 /**
@@ -23,10 +23,10 @@ interface IsAuthenticatedProps {
  *   <Content />
  * </IsAuthenticated>
  */
-export const IsAuthenticated: React.FC<IsAuthenticatedProps> = ({
+export const IsAuthenticated = ({
   children,
   fallback,
-}) => {
+}: IsAuthenticatedProps) => {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
